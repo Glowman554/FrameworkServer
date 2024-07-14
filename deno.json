@@ -49,5 +49,11 @@
       "html",
       "head"
     ]
+  },
+  "deploy": {
+    "project": "e45855c4-36a6-4062-be31-62eaea25dfd7",
+    "exclude": ["**/node_modules"],
+    "include": [],
+    "entrypoint": "main.ts"
   }
 }
