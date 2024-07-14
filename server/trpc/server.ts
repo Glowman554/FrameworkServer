@@ -7,6 +7,7 @@ import {
     passwordOk,
 } from "../users.ts";
 import superjson from "superjson";
+import { createFeatured, getAllFeatured, removeFeatured } from "../featured.ts";
 
 const t = initTRPC.create({ transformer: superjson });
 
@@ -14,6 +15,14 @@ const usernameAndPassword = z.object({
     username: z.string(),
     password: z.string(),
 });
+
+export async function adminOnly(token: string) {
+    const user = await getUserByToken(token);
+    if (!user || !user.admin) {
+        throw new Error("Not allowed");
+    }
+    return user;
+}
 
 const users = t.router({
     test: t.procedure.input(z.string()).query(
@@ -37,6 +46,34 @@ const users = t.router({
             return createToken(input.username);
         },
     ),
+    isAdmin: t.procedure.input(z.string()).query(async ({ input }) => {
+        const user = await getUserByToken(input);
+        if (!user) {
+            throw new Error("Invalid token");
+        }
+        return user.admin;
+    }),
+});
+
+const featured = t.router({
+    load: t.procedure.query(async () => {
+        return await getAllFeatured();
+    }),
+    add: t.procedure.input(z.object({
+        token: z.string(),
+        name: z.string(),
+        domain: z.string(),
+    })).mutation(async ({ input }) => {
+        await adminOnly(input.token);
+        await createFeatured(input.name, input.domain);
+    }),
+    remove: t.procedure.input(z.object({
+        token: z.string(),
+        name: z.string(),
+    })).mutation(async ({ input }) => {
+        await adminOnly(input.token);
+        await removeFeatured(input.name);
+    }),
 });
 
 export const appRouter = t.router({
@@ -45,6 +82,7 @@ export const appRouter = t.router({
         return `hello ${input ?? "world"}`;
     }),
     users,
+    featured,
 });
 
 export type AppRouter = typeof appRouter;

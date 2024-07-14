@@ -1,5 +1,6 @@
+import { useEffect, useState } from "preact/hooks";
 import { trpc } from "../server/trpc/client.ts";
-import { QueryState, useQuery } from "./helper.ts";
+import { QueryState, useQuery, withQuery } from "./helper.ts";
 
 export function useToken(q: QueryState) {
     const query = useQuery(async () => {
@@ -14,4 +15,24 @@ export function useToken(q: QueryState) {
     }, q);
 
     return query;
+}
+
+export function useIsAdmin(
+    token: string | undefined,
+    q: QueryState,
+) {
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        console.log("here");
+        if (token) {
+            withQuery(
+                () => trpc.users.isAdmin.query(token),
+                q,
+                setIsAdmin,
+            );
+        }
+    }, [token]);
+
+    return isAdmin;
 }
