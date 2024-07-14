@@ -65,6 +65,7 @@ export async function createUser(username: string, password: string) {
     await db.insert(users).values({
         passwordHash: bcrypt.hashSync(password),
         username,
+        admin: false,
     });
 }
 
