@@ -8,6 +8,12 @@ import {
 } from "../users.ts";
 import superjson from "superjson";
 import { createFeatured, getAllFeatured, removeFeatured } from "../featured.ts";
+import {
+    createVersionInfo,
+    getAllVersionInfos,
+    removeVersionInfo,
+    setEol,
+} from "../version.ts";
 
 const t = initTRPC.create({ transformer: superjson });
 
@@ -76,6 +82,34 @@ const featured = t.router({
     }),
 });
 
+const versions = t.router({
+    load: t.procedure.query(async () => {
+        return await getAllVersionInfos();
+    }),
+    add: t.procedure.input(z.object({
+        token: z.string(),
+        version: z.string(),
+    })).mutation(async ({ input }) => {
+        await adminOnly(input.token);
+        await createVersionInfo(input.version);
+    }),
+    remove: t.procedure.input(z.object({
+        token: z.string(),
+        version: z.string(),
+    })).mutation(async ({ input }) => {
+        await adminOnly(input.token);
+        await removeVersionInfo(input.version);
+    }),
+    setEol: t.procedure.input(z.object({
+        token: z.string(),
+        version: z.string(),
+        eol: z.boolean(),
+    })).mutation(async ({ input }) => {
+        await adminOnly(input.token);
+        await setEol(input.version, input.eol);
+    }),
+});
+
 export const appRouter = t.router({
     hello: t.procedure.input(z.string().nullish()).query(async ({ input }) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -83,6 +117,7 @@ export const appRouter = t.router({
     }),
     users,
     featured,
+    versions,
 });
 
 export type AppRouter = typeof appRouter;
