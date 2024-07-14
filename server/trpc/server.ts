@@ -14,6 +14,7 @@ import {
     removeVersionInfo,
     setEol,
 } from "../version.ts";
+import { getSessionCount, getUsage, getUserCount } from "../telemetry.ts";
 
 const t = initTRPC.create({ transformer: superjson });
 
@@ -110,6 +111,21 @@ const versions = t.router({
     }),
 });
 
+const telemetry = t.router({
+    loadUsage: t.procedure.input(z.string()).query(async ({ input }) => {
+        await adminOnly(input);
+        return await getUsage();
+    }),
+    loadSessionCount: t.procedure.input(z.string()).query(async ({ input }) => {
+        await adminOnly(input);
+        return await getSessionCount();
+    }),
+    loadUserCount: t.procedure.input(z.string()).query(async ({ input }) => {
+        await adminOnly(input);
+        return await getUserCount();
+    }),
+});
+
 export const appRouter = t.router({
     hello: t.procedure.input(z.string().nullish()).query(async ({ input }) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -118,6 +134,7 @@ export const appRouter = t.router({
     users,
     featured,
     versions,
+    telemetry,
 });
 
 export type AppRouter = typeof appRouter;
