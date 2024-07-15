@@ -1,9 +1,12 @@
+import { ContinueBox } from "./ContinueBox.tsx";
 import { useInput } from "../client/helper.ts";
 import { withQuery } from "../client/helper.ts";
 import { useQuery, useQueryState } from "../client/helper.ts";
 import { useIsAdmin, useToken } from "../client/token.ts";
 import { Query } from "../components/Query.tsx";
 import { trpc } from "../server/trpc/client.ts";
+import { VersionInfo } from "../server/version.ts";
+import { useState } from "preact/hooks";
 
 function VersionAdd(props: { add: (version: string) => void }) {
     const [version, versionChange] = useInput("");
@@ -31,6 +34,50 @@ function VersionAdd(props: { add: (version: string) => void }) {
     );
 }
 
+function VersionEntry(
+    props: {
+        remove: () => void;
+        setEol: (eol: boolean) => void;
+        entry: VersionInfo;
+    },
+) {
+    const [show, setShow] = useState(false);
+
+    return (
+        <tr class="glow-tr">
+            <td class="glow-td">{props.entry.version}</td>
+            <td class="glow-td">
+                <button
+                    class="glow-fancy-button"
+                    style={{ margin: 0 }}
+                    onClick={setShow.bind(null, true)}
+                >
+                    Remove
+                </button>
+            </td>
+            <td class="glow-td">
+                <button
+                    class="glow-fancy-button"
+                    style={{ margin: 0 }}
+                    onClick={props.setEol.bind(null, !props.entry.eol)}
+                >
+                    {props.entry.eol ? "Unset eol" : "Set eol"}
+                </button>
+                {show
+                    ? (
+                        <ContinueBox
+                            cancelCallback={() => {}}
+                            continueCallback={props.remove}
+                            resetCallback={setShow.bind(null, false)}
+                            message="You are about to delete this!"
+                        />
+                    )
+                    : <></>}
+            </td>
+        </tr>
+    );
+}
+
 function VersionList(
     props: {
         remove: (version: string) => void;
@@ -44,41 +91,30 @@ function VersionList(
         <Query q={q}>
             <div class="glow-field">
                 <table class="glow-table">
-                    <tr class="glow-tr">
-                        <td class="glow-td">Version</td>
-                        <td class="glow-td"></td>
-                        <td class="glow-td"></td>
-                    </tr>
-                    {list
-                        ? list.map((entry) => (
-                            <tr class="glow-tr">
-                                <td class="glow-td">{entry.version}</td>
-                                <td class="glow-td">
-                                    <button
-                                        class="glow-fancy-button"
-                                        style={{ margin: 0 }}
-                                        onClick={() =>
-                                            props.remove(entry.version)}
-                                    >
-                                        Remove
-                                    </button>
-                                </td>
-                                <td class="glow-td">
-                                    <button
-                                        class="glow-fancy-button"
-                                        style={{ margin: 0 }}
-                                        onClick={() =>
-                                            props.setEol(
-                                                entry.version,
-                                                !entry.eol,
-                                            )}
-                                    >
-                                        {entry.eol ? "Unset eol" : "Set eol"}
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                        : <></>}
+                    <thead>
+                        <tr class="glow-tr">
+                            <td class="glow-td">Version</td>
+                            <td class="glow-td"></td>
+                            <td class="glow-td"></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {list
+                            ? list.map((entry) => (
+                                <VersionEntry
+                                    entry={entry}
+                                    remove={props.remove.bind(
+                                        null,
+                                        entry.version,
+                                    )}
+                                    setEol={props.setEol.bind(
+                                        null,
+                                        entry.version,
+                                    )}
+                                />
+                            ))
+                            : <></>}
+                    </tbody>
                 </table>
             </div>
         </Query>

@@ -14,7 +14,7 @@ export function ContinueBox(
                         <h2>{props.message}</h2>
                         <h3>Do you want to continue?</h3>
                     </div>
-                    <div class="">
+                    <div class="glow-section">
                         <button
                             style={{ width: "40%" }}
                             onClick={() => {
