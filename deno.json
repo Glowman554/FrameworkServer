@@ -28,7 +28,7 @@
     "preact": "npm:preact@^10.22.1",
     "zod": "npm:zod@3.23.8"
   },
-  "nodeModulesDir": "auto",
+  "nodeModulesDir": true,
   "compilerOptions": {
     "lib": [
       "dom",
