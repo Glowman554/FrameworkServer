@@ -7,8 +7,8 @@ import { common } from "./common.js";
 const builder = new Builder();
 
 if (Deno.args.includes("build")) {
-    await builder.build(app);
+  await builder.build(app);
 } else {
-    await common();
-    await builder.listen(app);
+  await common();
+  await builder.listen(app);
 }

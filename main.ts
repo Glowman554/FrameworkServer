@@ -6,12 +6,12 @@ export const app = new App<State>();
 app.use(staticFiles());
 
 await fsRoutes(app, {
-    dir: "./",
-    loadIsland: (path) => import(`./islands/${path}`),
-    loadRoute: (path) => import(`./routes/${path}`),
+  dir: "./",
+  loadIsland: (path) => import(`./islands/${path}`),
+  loadRoute: (path) => import(`./routes/${path}`),
 });
 
 if (import.meta.main) {
-    await common();
-    await app.listen();
+  await common();
+  await app.listen();
 }
