@@ -14,6 +14,7 @@ export const handler = define.handlers({
         method: "POST",
         headers: {
           "Authentication": token,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: "_legacy",
